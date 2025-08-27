@@ -25,10 +25,9 @@ function createWindow() {
 
   if (isDev) {
     win.loadURL("http://localhost:5173");
-  } else 
-  {
-    const indexPath = path.join(__dirname, '..', 'dist', 'index.html');
-    win.loadURL(indexPath);
+  } else {
+    const indexPath = path.join(__dirname, "..", "dist", "index.html");
+    win.loadFile(indexPath);
   }
 
   ipcMain.handle("select-folder", async () => {
