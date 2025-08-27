@@ -26,7 +26,7 @@
     "react-dom": "^18.0.0"
   },
   "build": {
-    "appId": "com.stesproject.choralith_audio_explorer",
+    "appId": "com.stesproject.choralith",
     "productName": "Choralith Audio Explorer",
     "files": [
       "dist",
@@ -37,14 +37,24 @@
     },
     "asar": true,
     "win": {
+      "icon": "assets/icons/icon.ico",
       "target": "nsis"
     },
     "mac": {
+      "icon": "assets/icons/icon.icns",
+      "category": "public.app-category.music",
       "target": "dmg"
     },
     "linux": {
+      "icon": "assets/icons/png",
       "target": "AppImage",
       "category": "AudioVideo"
-    }
+    },
+    "extraResources": [
+      {
+        "from": "assets/icons",
+        "to": "assets/icons"
+      }
+    ]
   }
 }
