@@ -1,8 +1,8 @@
-# Game Audio Manager Explorer
+# Choralith Audio Explorer
 
-Game Audio Manager Explorer (GAME) is a software tool designed to help you efficiently manage your libraries of audio files, including both sound effects and music. It is specifically tailored to assist in finding the perfect tracks for games or any other project.
+Choralith Audio Explorer is a software tool designed to help you efficiently manage your libraries of audio files, including both sound effects and music. It is specifically tailored to assist in finding the perfect tracks for games or any other project.
 
-<img src="res/app_preview.gif" alt="Game Audio Manager Explorer preview" width="800"/>
+<img src="res/app_preview.gif" alt="Choralith Audio Explorer preview" width="800"/>
 
 ## Features 🌟
 
@@ -34,8 +34,6 @@ To run the program, follow these steps:
 
 NOTE: you also need Node.js installed on your machine.
 
-Unfortunately, I have not been able to create a working build at this time, so a click-and-run package is not available. For the details check the [related issue](https://github.com/stesproject/game-audio-manager-explorer/issues/1).
-
 ## What's Next 🔮
 
 I would like to enhance the program with the following useful features:
@@ -51,8 +49,6 @@ I would like to enhance the program with the following useful features:
 ## Contributing 🤝
 
 Contributions are highly welcome!
-
-While I am a web developer and use React and Vite in my daily work, this is my first project using Electron, and some aspects were quite challenging.
 
 If you would like to enhance the program or add new features, your contributions would be greatly appreciated!
 

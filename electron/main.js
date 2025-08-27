@@ -13,7 +13,7 @@ const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 function createWindow() {
   const win = new BrowserWindow({
-    title: "Game Audio Manager Explorer",
+    title: "Choralith Audio Explorer",
     icon: path.join(__dirname, "assets", "icon.png"),
     width: 900,
     height: 600,

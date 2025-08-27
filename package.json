@@ -1,6 +1,6 @@
 {
-  "name": "game-audio-manager-explorer",
-  "productName": "Game Audio Manager Explorer",
+  "name": "choralith-audio-explorer",
+  "productName": "Choralith Audio Explorer",
   "version": "1.0.0",
   "main": "electron/main.js",
   "author": "Stefano Mercadante <stefmercadante@gmail.com>",
@@ -26,8 +26,8 @@
     "react-dom": "^18.0.0"
   },
   "build": {
-    "appId": "com.stesproject.game",
-    "productName": "GAME",
+    "appId": "com.stesproject.choralith_audio_explorer",
+    "productName": "Choralith Audio Explorer",
     "files": [
       "dist",
       "electron"
