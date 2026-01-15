@@ -144,3 +144,7 @@ progress {
   gap: 1rem;
   z-index: 10;
 }
+
+.pitch-control {
+  display: flex;
+}
