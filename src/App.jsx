@@ -8,6 +8,7 @@ function App() {
   const [maxLength, setMaxLength] = useState("");
   const [progress, setProgress] = useState(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(null);
+  const [pitch, setPitch] = useState(0); // pitch in semitones
 
   const selectFolderButton = useRef(null);
   const tracksTable = useRef(null);
@@ -86,6 +87,13 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentTrackIndex, filteredTracks]);
 
+  // Keep the audio element's playbackRate in sync with the chosen pitch (semitones)
+  useEffect(() => {
+    if (audioPlayer.current) {
+      audioPlayer.current.playbackRate = Math.pow(2, pitch / 12);
+    }
+  }, [pitch]);
+
   const selectFolder = async () => {
     const files = await window.api.selectFolder();
     if (files?.length) {
@@ -101,6 +109,8 @@ function App() {
         audioPlayer.current.src = encodeURI(
           `localfile://${filteredTracks[index].path}`
         );
+        // apply current pitch (semitones) to playbackRate
+        audioPlayer.current.playbackRate = Math.pow(2, pitch / 12);
         audioPlayer.current.play();
         setCurrentTrackIndex(index);
       }
@@ -197,6 +207,21 @@ function App() {
           </main>
           <div className="audio-player">
             <audio ref={audioPlayer} style={{ width: "100%" }} controls />
+            <div className="pitch-control" style={{ marginTop: 8 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>Pitch</span>
+                <input
+                  type="range"
+                  min="-12"
+                  max="12"
+                  value={pitch}
+                  onChange={(e) => setPitch(parseFloat(e.target.value))}
+                />
+                <span style={{ marginLeft: 8, width: 100 }}>
+                  {Math.round(Math.pow(2, pitch / 12) * 100) / 100}x
+                </span>
+              </label>
+            </div>
           </div>
         </>
       )}

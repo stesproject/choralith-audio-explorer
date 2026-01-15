@@ -141,5 +141,6 @@ progress {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
+  gap: 1rem;
   z-index: 10;
 }
