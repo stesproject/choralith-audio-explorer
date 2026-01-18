@@ -76,6 +76,16 @@ function App() {
         const prev =
           currentTrackIndex === null ? 0 : Math.max(currentTrackIndex - 1, 0);
         playTrack(prev);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setPitch((p) => Math.min(p + 1, 12));
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setPitch((p) => Math.max(p - 1, -12));
+      } else if (e.key.toLowerCase() === "l") {
+        setLoop((l) => !l);
+      } else if (e.key === "1") {
+        setPitch(0);
       } else if (e.key === "Enter") {
         e.preventDefault();
         if (audioPlayer.current.paused) {
