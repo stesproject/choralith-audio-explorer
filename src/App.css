@@ -24,7 +24,11 @@ header {
 header .search-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
+}
+
+header .search-controls input {
+  width: 250px;
 }
 
 .header-content {
@@ -36,11 +40,9 @@ header .search-controls {
 
 header span {
   display: flex;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #e0e0f0;
-  justify-content: end;
-  text-align: center;
-  max-width: 42px;
+  white-space: nowrap;
 }
 
 main {
@@ -82,9 +84,26 @@ thead {
 
 th,
 td {
-  padding: 0.5rem;
+  padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid #444;
+}
+
+.th-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.th-content span {
+  font-size: 0.9rem;
+  color: #a0a0b0;
+}
+
+.col-filter {
+  width: 90%;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
 }
 
 tr:hover {

@@ -4,9 +4,11 @@ import { getCachedTracks, cacheTracks } from "./cacheManager";
 
 function App() {
   const [tracks, setTracks] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState("");
+  const [titleFilter, setTitleFilter] = useState("");
+  const [artistFilter, setArtistFilter] = useState("");
+  const [albumFilter, setAlbumFilter] = useState("");
+  const [lengthFilter, setLengthFilter] = useState("");
   const [excludeKeyword, setExcludeKeyword] = useState("");
-  const [maxLength, setMaxLength] = useState("");
   const [progress, setProgress] = useState(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(null);
   const [pitch, setPitch] = useState(0); // pitch in semitones
@@ -18,10 +20,6 @@ function App() {
   const rowRefs = useRef([]);
 
   const filteredTracks = useMemo(() => {
-    const searchKeywords = searchKeyword
-      .toLowerCase()
-      .split(" ")
-      .filter(Boolean);
     const excludeKeywords = excludeKeyword
       .toLowerCase()
       .split(" ")
@@ -29,16 +27,26 @@ function App() {
 
     return tracks.filter((track) => {
       const title = track.title?.toLowerCase() || "";
-      const matchKeyword =
-        searchKeywords.length === 0 ||
-        searchKeywords.every((kw) => title.includes(kw));
+      const artist = track.artist?.toLowerCase() || "";
+      const album = track.album?.toLowerCase() || "";
+
+      const matchTitle = !titleFilter || title.includes(titleFilter.toLowerCase());
+      const matchArtist = !artistFilter || artist.includes(artistFilter.toLowerCase());
+      const matchAlbum = !albumFilter || album.includes(albumFilter.toLowerCase());
+      const matchLength = !lengthFilter || track.length <= parseInt(lengthFilter);
+
       const excludeMatch =
         excludeKeywords.length === 0 ||
-        excludeKeywords.every((kw) => !title.includes(kw));
-      const lengthOk = !maxLength || track.length <= parseInt(maxLength);
-      return matchKeyword && excludeMatch && lengthOk;
+        excludeKeywords.every(
+          (kw) =>
+            !title.includes(kw) &&
+            !artist.includes(kw) &&
+            !album.includes(kw)
+        );
+
+      return matchTitle && matchArtist && matchAlbum && matchLength && excludeMatch;
     });
-  }, [tracks, searchKeyword, excludeKeyword, maxLength]);
+  }, [tracks, titleFilter, artistFilter, albumFilter, lengthFilter, excludeKeyword]);
 
   useEffect(() => {
     if (window.api) {
@@ -193,19 +201,9 @@ function App() {
           {tracks?.length > 0 && (
             <div className="search-controls">
               <input
-                placeholder="Search keyword"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-              />
-              <input
-                placeholder="Exclude keyword"
+                placeholder="Exclude keyword (Global)"
                 value={excludeKeyword}
                 onChange={(e) => setExcludeKeyword(e.target.value)}
-              />
-              <input
-                placeholder="Max Length (sec)"
-                value={maxLength}
-                onChange={(e) => setMaxLength(e.target.value)}
               />
               <span>{filteredTracks.length} tracks</span>
             </div>
@@ -218,10 +216,50 @@ function App() {
             <table ref={tracksTable}>
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Artist</th>
-                  <th>Album</th>
-                  <th>Length</th>
+                  <th>
+                    <div className="th-content">
+                      <span>Title</span>
+                      <input
+                        className="col-filter"
+                        placeholder="Filter title..."
+                        value={titleFilter}
+                        onChange={(e) => setTitleFilter(e.target.value)}
+                      />
+                    </div>
+                  </th>
+                  <th>
+                    <div className="th-content">
+                      <span>Artist</span>
+                      <input
+                        className="col-filter"
+                        placeholder="Filter artist..."
+                        value={artistFilter}
+                        onChange={(e) => setArtistFilter(e.target.value)}
+                      />
+                    </div>
+                  </th>
+                  <th>
+                    <div className="th-content">
+                      <span>Album</span>
+                      <input
+                        className="col-filter"
+                        placeholder="Filter album..."
+                        value={albumFilter}
+                        onChange={(e) => setAlbumFilter(e.target.value)}
+                      />
+                    </div>
+                  </th>
+                  <th>
+                    <div className="th-content">
+                      <span>Length</span>
+                      <input
+                        className="col-filter"
+                        placeholder="Max length..."
+                        value={lengthFilter}
+                        onChange={(e) => setLengthFilter(e.target.value)}
+                      />
+                    </div>
+                  </th>
                   <th>Open Directory</th>
                 </tr>
               </thead>
