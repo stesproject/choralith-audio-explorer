@@ -30,18 +30,23 @@ function createWindow() {
     win.loadFile(indexPath);
   }
 
-  ipcMain.handle("select-folder", async () => {
+  ipcMain.handle("pick-folder", async () => {
     const result = await dialog.showOpenDialog(win, {
       properties: ["openDirectory"],
     });
 
-    if (result.canceled || result.filePaths.length === 0) return [];
+    if (result.canceled || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
+  });
 
-    const folder = result.filePaths[0];
-
+  ipcMain.handle("scan-folder", async (event, folder, cachedTracks, cachedStats) => {
     return new Promise((resolve, reject) => {
       const worker = new Worker(path.join(__dirname, "scanner-worker.js"), {
-        workerData: { folder },
+        workerData: {
+          folder,
+          cachedTracks: cachedTracks || [],
+          cachedStats: cachedStats || {},
+        },
       });
 
       worker.on("message", (message) => {
@@ -49,9 +54,18 @@ function createWindow() {
           win.webContents.send("scan-progress", {
             current: message.current,
             total: message.total,
+            currentFile: message.currentFile,
+            scannedCount: message.scannedCount || 0,
+            fromCacheCount: message.fromCacheCount || 0,
           });
         } else if (message.type === "done") {
-          resolve(message.tracks);
+          resolve({
+            tracks: message.tracks,
+            fileStats: message.fileStats,
+            folderPath: folder,
+            scannedCount: message.scannedCount || 0,
+            fromCacheCount: message.fromCacheCount || 0,
+          });
         }
       });
 

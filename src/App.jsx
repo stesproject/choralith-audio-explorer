@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import "./App.css";
+import { getCachedTracks, cacheTracks } from "./cacheManager";
 
 function App() {
   const [tracks, setTracks] = useState([]);
@@ -103,11 +104,38 @@ function App() {
   }, [loop]);
 
   const selectFolder = async () => {
-    const files = await window.api.selectFolder();
-    if (files?.length) {
-      setTracks(files);
-      selectFolderButton.current.blur();
-      tracksTable.current.focus();
+    try {
+      const folderPath = await window.api.pickFolder();
+      if (!folderPath) return;
+
+      // Now that we have the path, check for cached data
+      const cachedData = await getCachedTracks(folderPath);
+
+      const result = await window.api.scanFolder(
+        folderPath,
+        cachedData?.tracks || [],
+        cachedData?.fileStats || {}
+      );
+
+      if (result?.tracks?.length) {
+        setTracks(result.tracks);
+        selectFolderButton.current.blur();
+        tracksTable.current.focus();
+
+        // Update cache with new scan results
+        await cacheTracks(folderPath, result.tracks, result.fileStats);
+
+        // Log cache statistics
+        if (result.fromCacheCount > 0) {
+          console.log(`Loaded ${result.fromCacheCount} tracks from cache, scanned ${result.scannedCount} new/modified files`);
+        }
+      }
+
+      // Clear progress once done
+      setProgress(null);
+    } catch (error) {
+      console.error("Error selecting folder:", error);
+      setProgress(null);
     }
   };
 
@@ -131,7 +159,7 @@ function App() {
 
   return (
     <>
-      {progress && progress.current < progress.total && (
+      {progress && (
         <div className="progress-overlay">
           <div className="progress-box">
             <h3>Scanning Files...</h3>
@@ -139,6 +167,11 @@ function App() {
               {progress.current} / {progress.total}
             </p>
             <progress value={progress.current} max={progress.total}></progress>
+            {progress.currentFile && (
+              <p className="progress-path" title={progress.currentFile}>
+                {progress.currentFile.length > 60 ? `...${progress.currentFile.slice(-57)}` : progress.currentFile}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -205,7 +238,9 @@ function App() {
                         }}
                         title="Open directory"
                       >
-                        📂
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2-open" viewBox="0 0 16 16">
+                          <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7z" />
+                        </svg>
                       </button>
                     </td>
                   </tr>

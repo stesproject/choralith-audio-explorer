@@ -22,47 +22,105 @@ function getAllFiles(dir, allFiles = []) {
   return allFiles;
 }
 
-async function scanFolder(folder) {
+/**
+ * Get file modification time
+ */
+function getFileMtime(filePath) {
+  try {
+    const stats = fs.statSync(filePath);
+    return stats.mtimeMs;
+  } catch (err) {
+    return 0;
+  }
+}
+
+/**
+ * Check if file needs to be scanned based on cache
+ */
+function needsScan(filePath, cachedStats) {
+  if (!cachedStats || !cachedStats[filePath]) {
+    return true; // File not in cache
+  }
+  const currentMtime = getFileMtime(filePath);
+  return currentMtime !== cachedStats[filePath];
+}
+
+async function scanFolder(folder, cachedTracks = [], cachedStats = {}) {
   const allFiles = getAllFiles(folder);
   const audioFiles = allFiles.filter(isAudioFile);
   const total = audioFiles.length;
   const tracks = [];
+  const fileStats = {};
+
+  // Create a map of cached tracks by path for quick lookup
+  const cachedTrackMap = {};
+  for (const track of cachedTracks) {
+    cachedTrackMap[track.path] = track;
+  }
+
+  let scannedCount = 0;
+  let fromCacheCount = 0;
 
   for (let i = 0; i < total; i++) {
     const file = audioFiles[i];
-    let metadata = {};
-    try {
-      const meta = await mm.parseFile(file);
-      metadata = {
-        title: meta.common.title || path.basename(file),
-        artist: meta.common.artist || "",
-        album: meta.common.album || "",
-        length: meta.format.duration || 0,
+    const mtime = getFileMtime(file);
+    fileStats[file] = mtime;
+
+    let trackData;
+
+    // Use cached data if file hasn't changed
+    if (!needsScan(file, cachedStats) && cachedTrackMap[file]) {
+      trackData = cachedTrackMap[file];
+      fromCacheCount++;
+    } else {
+      // Scan the file
+      let metadata = {};
+      try {
+        const meta = await mm.parseFile(file);
+        metadata = {
+          title: meta.common.title || path.basename(file),
+          artist: meta.common.artist || "",
+          album: meta.common.album || "",
+          length: meta.format.duration || 0,
+        };
+      } catch (err) {
+        metadata = {
+          title: path.basename(file),
+          artist: "",
+          album: "",
+          length: 0,
+        };
+      }
+
+      trackData = {
+        path: file,
+        ...metadata,
       };
-    } catch (err) {
-      metadata = {
-        title: path.basename(file),
-        artist: "",
-        album: "",
-        length: 0,
-      };
+      scannedCount++;
     }
 
-    tracks.push({
-      path: file,
-      ...metadata,
-    });
+    tracks.push(trackData);
 
-    if (i % 10 === 0 || i === total - 1) {
+    if (i % 5 === 0 || i === total - 1) {
       parentPort.postMessage({
         type: "progress",
         current: i + 1,
         total,
+        currentFile: file,
+        scannedCount,
+        fromCacheCount,
       });
     }
   }
 
-  parentPort.postMessage({ type: "done", tracks });
+  parentPort.postMessage({
+    type: "done",
+    tracks,
+    fileStats,
+    scannedCount,
+    fromCacheCount,
+  });
 }
 
-scanFolder(workerData.folder);
+const { folder, cachedTracks, cachedStats } = workerData;
+scanFolder(folder, cachedTracks, cachedStats);

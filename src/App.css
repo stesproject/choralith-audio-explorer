@@ -122,13 +122,24 @@ progress {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   text-align: center;
   color: white;
-  min-width: 300px;
+  width: 70%;
 }
 
 .progress-box progress {
   width: 100%;
   height: 14px;
   margin-top: 1rem;
+}
+
+.progress-path {
+  font-size: 0.8rem;
+  color: #a0a0b0;
+  margin-top: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  max-width: 90%;
 }
 
 .audio-player {
