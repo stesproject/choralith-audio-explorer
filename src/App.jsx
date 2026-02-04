@@ -13,6 +13,7 @@ function App() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(null);
   const [pitch, setPitch] = useState(0); // pitch in semitones
   const [loop, setLoop] = useState(false); // loop state
+  const [error, setError] = useState(null); // error state
 
   const selectFolderButton = useRef(null);
   const tracksTable = useRef(null);
@@ -153,6 +154,7 @@ function App() {
       setProgress(null);
     } catch (error) {
       console.error("Error selecting folder:", error);
+      setError(error.message || "An unknown error occurred during scanning");
       setProgress(null);
     }
   };
@@ -190,6 +192,20 @@ function App() {
                 {progress.currentFile.length > 60 ? `...${progress.currentFile.slice(-57)}` : progress.currentFile}
               </p>
             )}
+          </div>
+        </div>
+      )}
+      {error && (
+        <div className="progress-overlay">
+          <div className="progress-box" style={{ borderColor: "#ef4444", borderStyle: "solid", borderWidth: "1px" }}>
+            <h3 style={{ color: "#ef4444" }}>Scanning Error</h3>
+            <p style={{ margin: "1rem 0" }}>{error}</p>
+            <button
+              onClick={() => setError(null)}
+              style={{ backgroundColor: "#ef4444" }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
