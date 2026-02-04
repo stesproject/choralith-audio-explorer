@@ -26,12 +26,14 @@ function App() {
       .split(" ")
       .filter(Boolean);
 
+    const titleKeywords = titleFilter.toLowerCase().split(" ").filter(Boolean);
+
     return tracks.filter((track) => {
       const title = track.title?.toLowerCase() || "";
       const artist = track.artist?.toLowerCase() || "";
       const album = track.album?.toLowerCase() || "";
 
-      const matchTitle = !titleFilter || title.includes(titleFilter.toLowerCase());
+      const matchTitle = titleKeywords.length === 0 || titleKeywords.some(kw => title.includes(kw));
       const matchArtist = !artistFilter || artist.includes(artistFilter.toLowerCase());
       const matchAlbum = !albumFilter || album.includes(albumFilter.toLowerCase());
       const matchLength = !lengthFilter || track.length <= parseInt(lengthFilter);
