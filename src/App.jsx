@@ -64,6 +64,13 @@ function App() {
     }
   }, [currentTrackIndex, filteredTracks]);
 
+  // Focus table when tracks are loaded
+  useEffect(() => {
+    if (tracks.length > 0 && tracksTable.current) {
+      tracksTable.current.focus();
+    }
+  }, [tracks]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!filteredTracks.length) return;
@@ -139,7 +146,6 @@ function App() {
       if (result?.tracks?.length) {
         setTracks(result.tracks);
         selectFolderButton.current.blur();
-        tracksTable.current.focus();
 
         // Update cache with new scan results
         await cacheTracks(folderPath, result.tracks, result.fileStats);
