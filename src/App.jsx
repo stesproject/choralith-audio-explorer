@@ -221,7 +221,10 @@ function App() {
                 value={excludeKeyword}
                 onChange={(e) => setExcludeKeyword(e.target.value)}
               />
-              <span>{filteredTracks.length} tracks</span>
+              <span>
+                {currentTrackIndex !== null ? `${currentTrackIndex + 1}/` : ""}
+                {filteredTracks.length} tracks
+              </span>
             </div>
           )}
         </div>
