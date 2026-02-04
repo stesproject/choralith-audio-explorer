@@ -96,10 +96,18 @@ function App() {
         playTrack(prev);
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        setPitch((p) => Math.min(p + 1, 12));
+        if (e.shiftKey) {
+          setPitch((p) => Math.min(p + 1, 12));
+        } else if (audioPlayer.current) {
+          audioPlayer.current.currentTime += 10;
+        }
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        setPitch((p) => Math.max(p - 1, -12));
+        if (e.shiftKey) {
+          setPitch((p) => Math.max(p - 1, -12));
+        } else if (audioPlayer.current) {
+          audioPlayer.current.currentTime -= 10;
+        }
       } else if (e.key.toLowerCase() === "l") {
         setLoop((l) => !l);
       } else if (e.key === "1") {
@@ -225,7 +233,7 @@ function App() {
           {tracks?.length > 0 && (
             <div className="search-controls">
               <input
-                placeholder="Exclude keyword (Global)"
+                placeholder="Exclude keywords"
                 value={excludeKeyword}
                 onChange={(e) => setExcludeKeyword(e.target.value)}
               />
