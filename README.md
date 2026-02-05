@@ -2,7 +2,7 @@
 
 Choralith Audio Explorer is a software tool designed to help you efficiently manage your libraries of audio files, including both sound effects and music. It is specifically tailored to assist in finding the perfect tracks for games or any other project.
 
-<img src="res/app_preview.gif" alt="Choralith Audio Explorer preview" width="800"/>
+<video src="res/app-preview.mp4" width="800" autoplay loop muted></video>
 
 ## Features 🌟
 
