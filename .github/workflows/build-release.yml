@@ -64,22 +64,23 @@ jobs:
 
       - name: Build mac
         if: matrix.os == 'macos-latest'
-        run: npx electron-builder --mac
+        run: npx electron-builder --mac --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
 
       - name: Build windows
         if: matrix.os == 'windows-latest'
-        run: npx electron-builder --win
+        run: npx electron-builder --win --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
 
       - name: Build linux
         if: matrix.os == 'ubuntu-latest'
-        run: npx electron-builder --linux
+        run: npx electron-builder --linux --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
 
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Upload artifacts (branch builds)
+        if: github.ref_type == 'branch'
+        uses: actions/upload-artifact@v4
         with:
-          files: |
+          name: ${{ runner.os }}-artifacts
+          path: |
             dist/**/*.dmg
+            dist/**/*.zip
             dist/**/*.exe
             dist/**/*.AppImage
-
