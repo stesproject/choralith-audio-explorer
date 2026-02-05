@@ -15,8 +15,8 @@ function createWindow() {
   const win = new BrowserWindow({
     title: "Choralith Audio Explorer",
     icon: path.join(__dirname, "assets", "icon.png"),
-    width: 900,
-    height: 600,
+    width: 1000,
+    height: 700,
     webPreferences: {
       sandbox: false,
       preload: path.join(__dirname, "preload.js"),

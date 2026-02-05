@@ -16,7 +16,13 @@ Choralith Audio Explorer is a software tool designed to help you efficiently man
 
 - **Easy export:** click on the "Open Directory" button to quickly access the directory at the file path.
 
-- **Track filtering:** filter tracks by keyword, excluded keyword, or maximum length to easily find the audio files you need.
+- **Favorites System:** mark tracks as favorites and toggle the view to see only your favorite files.
+
+- **Smart Caching:** subsequent scans of the same folder are instant thanks to a local caching system using IndexedDB.
+
+- **Pitch Control:** adjust the pitch (and playback speed) of the audio in real-time, useful for previewing how a sound effect might sound with pitch shifting.
+
+- **Column-specific filtering:** filter by keyword directly within each column, allowing filtering by title, artist, or album.
 
 ## Installation 🛠️
 
@@ -34,15 +40,20 @@ To run the program, follow these steps:
 
 NOTE: you also need Node.js installed on your machine.
 
+## Shortcuts ⌨️
+
+- **Arrow Up / Arrow Down**: navigate tracks
+- **Enter**: start / stop playback
+- **Arrow Left / Arrow Right**: rewind / forward 10s
+- **Shift + Arrow Left / Arrow Right**: decrease / increase pitch
+- **1**: reset pitch
+- **L**: toggle loop
+
 ## What's Next 🔮
 
 I would like to enhance the program with the following useful features:
 
-- **Column-specific keyword filtering**: implement the ability to filter by keyword directly within each column, allowing users to filter by title, artist, or album. The filter by maximum length be at the top of the corresponding column.
-
 - **Column sorting**: enable sorting of columns alphabetically and by track length.
-
-- **Favorites tab**: introduce a feature to save files to a "Favorites" tab.
 
 - **Project grouping**: allow users to group files into specific "projects" for streamlined management and easy export in the future.
 
