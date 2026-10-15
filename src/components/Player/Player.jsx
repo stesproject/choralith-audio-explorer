@@ -3,9 +3,9 @@ import React from "react";
 export default function Player({ audioRef, pitch, setPitch, loop, setLoop }) {
     return (
         <div className="audio-player">
-            <audio ref={audioRef} style={{ width: "100%" }} controls loop={loop} />
-            <div className="pitch-control" style={{ marginTop: 8 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <audio ref={audioRef} controls loop={loop} />
+            <div className="pitch-control">
+                <label className="pitch-label">
                     <span>Pitch</span>
                     <input
                         type="range"
@@ -14,21 +14,18 @@ export default function Player({ audioRef, pitch, setPitch, loop, setLoop }) {
                         value={pitch}
                         onChange={(e) => setPitch(parseFloat(e.target.value))}
                     />
-                    <span style={{ marginLeft: 8, width: 100 }}>
+                    <span className="pitch-value">
                         {Math.round(Math.pow(2, pitch / 12) * 100) / 100}x
                     </span>
                 </label>
                 <button
                     type="button"
-                    className="loop-btn"
+                    className={`loop-btn ${loop ? "active" : ""}`}
                     onClick={() => {
                         setLoop((l) => !l);
                         if (audioRef.current) {
                             audioRef.current.loop = !loop;
                         }
-                    }}
-                    style={{
-                        background: loop ? "#cce" : "",
                     }}
                     title={loop ? "Disable loop" : "Enable loop"}
                 >

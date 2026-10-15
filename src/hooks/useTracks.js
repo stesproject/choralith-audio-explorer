@@ -1,4 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { open } from "@tauri-apps/plugin-dialog";
 import { getCachedTracks, cacheTracks } from "../cacheManager";
 
 export function useTracks(favourites, showFavourites) {
@@ -16,25 +19,35 @@ export function useTracks(favourites, showFavourites) {
     const selectFolderButtonRef = useRef(null);
 
     useEffect(() => {
-        if (window.api) {
-            const handler = (event, data) => setProgress(data);
-            window.api.onScanProgress(handler);
+        let unlisten;
+        async function setupListener() {
+            unlisten = await listen("scan-progress", (event) => {
+                setProgress(event.payload);
+            });
         }
+        setupListener();
+
+        return () => {
+            if (unlisten) unlisten();
+        };
     }, []);
 
     const selectFolder = async () => {
         try {
-            const folderPath = await window.api.pickFolder();
+            const folderPath = await open({
+                directory: true,
+                multiple: false,
+            });
             if (!folderPath) return;
 
             // Now that we have the path, check for cached data
             const cachedData = await getCachedTracks(folderPath);
 
-            const result = await window.api.scanFolder(
-                folderPath,
-                cachedData?.tracks || [],
-                cachedData?.fileStats || {}
-            );
+            const result = await invoke("scan_folder", {
+                folder: folderPath,
+                cachedTracks: cachedData?.tracks || [],
+                cachedStats: cachedData?.fileStats || {},
+            });
 
             if (result?.tracks?.length) {
                 setTracks(result.tracks);
