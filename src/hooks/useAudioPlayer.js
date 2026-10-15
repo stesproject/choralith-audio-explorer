@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 export function useAudioPlayer(filteredTracks) {
     const audioRef = useRef(null);
@@ -23,9 +24,7 @@ export function useAudioPlayer(filteredTracks) {
     const playTrack = (index) => {
         if (index >= 0 && index < filteredTracks.length) {
             if (audioRef.current) {
-                audioRef.current.src = encodeURI(
-                    `localfile://${filteredTracks[index].path}`
-                );
+                audioRef.current.src = convertFileSrc(filteredTracks[index].path);
                 // apply current pitch (semitones) to playbackRate
                 audioRef.current.playbackRate = Math.pow(2, pitch / 12);
                 audioRef.current.play();

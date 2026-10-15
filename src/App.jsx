@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import "./App.css";
 
 // Components
@@ -40,7 +41,7 @@ function App() {
   } = useAudioPlayer(filteredTracks);
 
   const openDirectoryAtPath = (path) => {
-    window.api.openFolder(path);
+    revealItemInDir(path);
   };
 
   return (
