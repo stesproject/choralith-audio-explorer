@@ -1,8 +1,9 @@
-name: Build and Release (Electron)
+name: Build and Release (Tauri)
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,75 +13,67 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: ${{ matrix.os }}
+  release:
+    name: ${{ matrix.platform }} (${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    env:
-      CSC_IDENTITY_AUTO_DISCOVERY: "false"
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        include:
+          - platform: macos
+            arch: Apple Silicon (arm64)
+            os: macos-latest
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+          - platform: windows
+            arch: x64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            args: ""
+          - platform: linux
+            arch: x64
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            args: ""
 
     steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 18, cache: npm }
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Cache electron (macOS)
-        if: runner.os == 'macOS'
-        uses: actions/cache@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ~/Library/Caches/electron
-            ~/Library/Caches/electron-builder
-          key: electron-cache-mac-${{ hashFiles('package-lock.json') }}
+          node-version: 20
+          cache: npm
 
-      - name: Cache electron (Linux)
-        if: runner.os == 'Linux'
-        uses: actions/cache@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          path: |
-            ~/.cache/electron
-            ~/.cache/electron-builder
-          key: electron-cache-linux-${{ hashFiles('package-lock.json') }}
+          targets: ${{ matrix.target }}
 
-      - name: Cache electron (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          path: |
-            ~\AppData\Local\electron\Cache
-            ~\AppData\Local\electron-builder\Cache
-          key: electron-cache-win-${{ hashFiles('package-lock.json') }}
+          workspaces: "./src-tauri -> target"
 
-      - name: Install deps
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build renderer
-        run: npm run build
-
-      - name: Build mac
-        if: matrix.os == 'macos-latest'
-        run: npx electron-builder --mac --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
-
-      - name: Build windows
-        if: matrix.os == 'windows-latest'
-        run: npx electron-builder --win --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
-
-      - name: Build linux
-        if: matrix.os == 'ubuntu-latest'
-        run: npx electron-builder --linux --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
-
-      - name: Upload artifacts (branch builds)
-        if: github.ref_type == 'branch'
-        uses: actions/upload-artifact@v4
+      - name: Build and Publish Release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ runner.os }}-artifacts
-          path: |
-            dist/**/*.dmg
-            dist/**/*.zip
-            dist/**/*.exe
-            dist/**/*.AppImage
+          tagName: v__VERSION__
+          releaseName: "Choralith Audio Explorer v__VERSION__"
+          releaseBody: "See the assets below to download and install for macOS (Apple Silicon), Windows, and Linux."
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+
